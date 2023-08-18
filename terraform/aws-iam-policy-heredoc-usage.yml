@@ -1,0 +1,17 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+rules:
+  # warn on heredoc usage in policy configuration (uses generic mode, so this is essentially standard grep)
+  - id: aws-iam-policy-heredoc-usage
+    patterns:
+    - pattern-either:
+      - pattern-regex: ( policy = <<(?P<label>\w+)[\w\W]+?(?P=label))
+      - pattern-regex: ( assume_role_policy = <<(?P<label>\w+)[\w\W]+?(?P=label))
+    message: |
+      Usage of heredoc pattern for policy configurations may be prone to silent squashing of duplicate JSON keys. While the `terraform plan` output will correctly reflect the end state, it may not match the intent of the configuration author.
+
+      Review the guidance at https://developer.hashicorp.com/terraform/tutorials/aws/aws-iam-policy, and consider using the aws_iam_policy_document data source instead.
+    languages:
+      - generic
+    severity: WARNING

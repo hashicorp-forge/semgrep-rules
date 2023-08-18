@@ -1,0 +1,15 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+rules:
+  # error on policy statements defined with multiple conditions with duplicate keys
+  - id: aws-iam-policy-statement-duplicate-conditions
+    patterns:
+    - pattern: 'Statement = [..., {..., "Condition": {..., "$KEY": {...}, ..., "$KEY": {...}, ...}, ...}, ...]'
+    message: |
+      Usage of jsonencode() to define policy statements containing conditions with duplicate keys is prone to silent squashing during JSON serialization. While the `terraform plan` output will correctly reflect the end state, it may not match the intent of the configuration author.
+
+      Review the guidance at https://developer.hashicorp.com/terraform/tutorials/aws/aws-iam-policy, and consider using the aws_iam_policy_document data source instead.
+    languages:
+      - terraform
+    severity: ERROR

@@ -1,0 +1,33 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+rules:
+  # error on aws_iam_policy_document usage with duplicate condition test/variable values
+  - id: aws-iam-policy-document-duplicate-conditions
+    pattern:
+      data "aws_iam_policy_document" $LABEL {
+        ...
+        statement {
+          ...
+          condition {
+            ...
+            test = $TEST
+            ...
+            variable = $VARIABLE
+            ...
+          }
+          ...
+          condition {
+            ...
+            test = $TEST
+            ...
+            variable = $VARIABLE
+            ...
+          }
+        ...
+      }
+    message: |
+      Usage of aws_iam_policy_document data source with duplicate condition test/variable values may result in unexpected behavior. While the `terraform plan` output will correctly reflect the end state, it may not match the intent of the configuration author.
+    languages:
+      - terraform
+    severity: ERROR
