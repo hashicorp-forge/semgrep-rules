@@ -1,0 +1,24 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+rules:
+  # error on module names that are not valid HCL identifiers
+  # (regex may not be a perfect match, but we don't have Unicode ID_Start / ID_Continue properties)
+  - id: general-invalid-module-identifier
+    patterns:
+      - pattern:
+          module "$MODULE_NAME" {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $MODULE_NAME
+          regex: (\A[\w-]*[^\w-]+[\w-]*\Z)
+    message: |
+      This Terraform configuration uses a module name that is not a valid HCL identifier.
+
+      The HCL specification defines the identifier format at https://github.com/hashicorp/hcl/blob/main/hclsyntax/spec.md#identifiers.
+
+      This may have security implications related to https://discuss.hashicorp.com/t/hcsec-2023-27-terraform-allows-arbitrary-file-write-during-init-operation/58082, or may cause errors when run with Terraform 1.5.7 or newer.
+    languages:
+      - terraform
+    severity: ERROR
